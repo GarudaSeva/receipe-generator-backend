@@ -1,12 +1,31 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import google.generativeai as genai
+from groq import Groq
 import uuid
 import json
 import re
 import os
+import sys
 import time
 from dotenv import load_dotenv
+
+# ==========================
+# LOGGER — writes to console AND server.log simultaneously
+# ==========================
+class TeeLogger:
+    def __init__(self, *streams):
+        self.streams = streams
+    def write(self, msg):
+        for s in self.streams:
+            s.write(msg)
+            s.flush()
+    def flush(self):
+        for s in self.streams:
+            s.flush()
+
+_log_file = open(os.path.join(os.path.dirname(__file__), "server.log"), "w", encoding="utf-8")
+sys.stdout = TeeLogger(sys.__stdout__, _log_file)
+sys.stderr = TeeLogger(sys.__stderr__, _log_file)
 
 load_dotenv()
 
@@ -14,38 +33,27 @@ app = Flask(__name__)
 CORS(app)
 
 # ==========================
-# GEMINI CONFIG - ROUND ROBIN KEY ROTATION
+# GROQ CONFIG
 # ==========================
 
-API_KEYS = [
-    os.getenv("GEMINI_API_KEY_1"),
-    os.getenv("GEMINI_API_KEY_2"),
-    os.getenv("GEMINI_API_KEY_3"),
-    os.getenv("GEMINI_API_KEY_4"),
-]
-# Remove any None or empty keys
-API_KEYS = [k for k in API_KEYS if k]
+GROQ_KEY = os.getenv("GROQ_API_KEY")
 
-if not API_KEYS:
+if not GROQ_KEY:
     raise RuntimeError(
-        "No Gemini API keys found. Set at least GEMINI_API_KEY_1 in your .env file."
+        "No Groq API key found. Set GROQ_API_KEY in your .env file."
     )
 
-print(f"[STARTUP] Loaded {len(API_KEYS)} Gemini API key(s)")
-for i, k in enumerate(API_KEYS):
-    print(f"[STARTUP]   Key #{i+1}: {k[:8]}...{k[-4:]} (length={len(k)})")
+print(f"[STARTUP] Loaded Groq API key: {GROQ_KEY[:8]}...{GROQ_KEY[-4:]}")
 
-_current_key_index = 0
+GROQ_CLIENT = Groq(api_key=GROQ_KEY)
+MODEL_NAME = "llama-3.3-70b-versatile"
 
-def get_next_model():
-    """Round-robin: returns a fresh model using the next API key each time."""
-    global _current_key_index
-    key_index = _current_key_index % len(API_KEYS)
-    key = API_KEYS[key_index]
-    _current_key_index += 1
-    genai.configure(api_key=key)
-    print(f"[LLM] Configuring Gemini with API key #{key_index + 1} ({key[:8]}...)")
-    return genai.GenerativeModel("gemini-2.0-flash")
+print(f"[STARTUP] Groq client ready, model={MODEL_NAME}")
+
+def get_next_client():
+    """Returns the Groq client (single key, stateless)."""
+    print(f"[LLM] Using Groq client, model={MODEL_NAME}")
+    return GROQ_CLIENT
 
 # ==========================
 # DB CONFIG
@@ -246,9 +254,9 @@ def generate_recipe(ingredients, cuisine="Indian", diet="Balanced", allergies=No
     print(f"\n{'='*60}")
     print(f"[GENERATE] Recipe #{variation+1} | ingredients={ingredients} | cuisine={cuisine} | diet={diet} | allergies={allergies}")
     print(f"[GENERATE] Prompt length: {len(prompt)} chars")
-    print(f"[GENERATE] Available API keys: {len(API_KEYS)}, max attempts: {min(3, len(API_KEYS))}")
+    print(f"[GENERATE] Model: {MODEL_NAME}")
 
-    max_attempts = min(3, len(API_KEYS))  # Try up to 3 different keys
+    max_attempts = 3
     for attempt in range(max_attempts):
         try:
             if attempt > 0:
@@ -256,19 +264,23 @@ def generate_recipe(ingredients, cuisine="Indian", diet="Balanced", allergies=No
                 print(f"[LLM] Retry attempt {attempt+1}/{max_attempts} with next API key, waiting {wait}s...")
                 time.sleep(wait)
 
-            print(f"[LLM] Attempt {attempt+1}/{max_attempts} — calling Gemini...")
+            print(f"[LLM] Attempt {attempt+1}/{max_attempts} — calling Groq...")
             start_time = time.time()
-            current_model = get_next_model()
-            response = current_model.generate_content(prompt)
+            client = get_next_client()
+            completion = client.chat.completions.create(
+                model=MODEL_NAME,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.7,
+            )
             elapsed = round(time.time() - start_time, 2)
-            print(f"[LLM] Gemini responded in {elapsed}s")
+            print(f"[LLM] Groq responded in {elapsed}s")
 
+            text = completion.choices[0].message.content
             # Check for blocked/empty responses
-            if not response.text:
-                print(f"[LLM] WARNING: Empty response from Gemini (candidates={response.candidates})")
-                raise Exception("Empty response from Gemini API")
+            if not text:
+                raise Exception("Empty response from Groq API")
 
-            text = response.text.strip()
+            text = text.strip()
             print(f"[LLM] Response length: {len(text)} chars")
             print(f"[LLM] Response preview: {text[:200]}...")
 
@@ -572,30 +584,34 @@ def get_personalized_recommendations(email):
 
     # Fetch all past generated recipes from search history
     search_history = user.get("searchHistory", [])
-    all_past_recipes = []
+    past_ingredients = []
     for batch in search_history:
         if isinstance(batch, list):
-            all_past_recipes.extend(batch)
+            past_ingredients.extend(batch)
 
-    # Build ingredients query from profile
-    ingredients = clean_ingredients(fav_ingredients) if fav_ingredients else ["vegetables"]
+    # Build ingredients query: prefer past search ingredients, fall back to profile
+    if past_ingredients:
+        ingredients = clean_ingredients(list(dict.fromkeys(past_ingredients)))  # deduplicated
+    elif fav_ingredients:
+        ingredients = clean_ingredients(fav_ingredients)
+    else:
+        ingredients = ["vegetables"]
+
     target_cuisine = cuisines[0] if cuisines else "Indian"
 
-    # If no history, generate 3 fresh recipes (survey mode)
+    # Generate 3 personalised recipes
     new_recipes = []
-    if not all_past_recipes:
-        for i in range(3):
-            recipe = generate_recipe(
-                ingredients=ingredients,
-                cuisine=target_cuisine,
-                diet=diet_goal or "Balanced",
-                allergies=allergies,
-                variation=i
-            )
-            new_recipes.append(recipe)
+    for i in range(3):
+        recipe = generate_recipe(
+            ingredients=ingredients,
+            cuisine=target_cuisine,
+            diet=diet_goal or "Balanced",
+            allergies=allergies,
+            variation=i
+        )
+        new_recipes.append(recipe)
 
-    # Return new + all past recipes
-    return jsonify(new_recipes + all_past_recipes)
+    return jsonify(new_recipes)
 
 
 # ==========================
@@ -732,7 +748,7 @@ def delete_favorite(email, recipe_id):
     if not user:
         return jsonify({"error": "User not found"}), 404
 
-    user["favorites"] = [f for f in user["favorites"] if str(f.get("id")) != str(recipe_id)]
+    user["favorites"] = [f for f in user["favorites"] if str(f.get("recipe", {}).get("id")) != str(recipe_id)]
     save_db(db)
     return jsonify(user["favorites"])
 
@@ -742,4 +758,4 @@ def delete_favorite(email, recipe_id):
 # ==========================
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=False, port=5000, use_reloader=False)

@@ -632,6 +632,89 @@
           }
         ]
       ]
+    },
+    "test@test.com": {
+      "name": "Test User",
+      "password": "pass123",
+      "profile": {
+        "name": "Test User",
+        "email": "test@test.com",
+        "dietGoals": [
+          "High Protein"
+        ],
+        "dietType": "Non Vegetarian",
+        "cuisinePreferences": [
+          "Indian"
+        ],
+        "allergies": [],
+        "favoriteIngredients": [
+          "chicken",
+          "egg"
+        ],
+        "favoriteVegetables": [
+          "onion",
+          "tomato"
+        ],
+        "favoriteDishes": [
+          "biryani"
+        ]
+      },
+      "favorites": [],
+      "searchHistory": [
+        [
+          "noodles",
+          "chicken"
+        ]
+      ]
+    },
+    "newtest@test.com": {
+      "name": "Test User",
+      "password": "pass123",
+      "profile": {
+        "name": "Test User",
+        "email": "newtest@test.com",
+        "dietGoals": [],
+        "dietType": "Vegetarian",
+        "cuisinePreferences": [
+          "Indian",
+          "Italian"
+        ],
+        "allergies": [
+          "nuts"
+        ],
+        "favoriteIngredients": [
+          "paneer",
+          "tomato",
+          "spinach"
+        ],
+        "favoriteVegetables": [],
+        "favoriteDishes": []
+      },
+      "favorites": [],
+      "searchHistory": [
+        [
+          "paneer",
+          "tomato",
+          "spinach"
+        ]
+      ]
+    },
+    "test@chef.com": {
+      "name": "Test Chef",
+      "password": "pass123",
+      "profile": {
+        "name": "Test Chef",
+        "email": "test@chef.com",
+        "dietGoals": [],
+        "dietType": "",
+        "cuisinePreferences": [],
+        "allergies": [],
+        "favoriteIngredients": [],
+        "favoriteVegetables": [],
+        "favoriteDishes": []
+      },
+      "favorites": [],
+      "searchHistory": []
     }
   }
 }
