@@ -240,11 +240,13 @@ def generate_recipe(ingredients, cuisine="Indian", diet="Balanced", allergies=No
     prompt = build_prompt(ingredients, cuisine, diet, allergies, variation)
     print(f"[DEBUG] Generating recipe #{variation+1} for: {ingredients}")
 
-    for attempt in range(2):
+    max_attempts = min(3, len(API_KEYS))  # Try up to 3 different keys
+    for attempt in range(max_attempts):
         try:
             if attempt > 0:
-                print(f"[DEBUG] Retry attempt 2 with next API key, waiting 2 seconds...")
-                time.sleep(2)
+                wait = attempt * 2
+                print(f"[DEBUG] Retry attempt {attempt+1} with next API key, waiting {wait} seconds...")
+                time.sleep(wait)
 
             current_model = get_next_model()
             response = current_model.generate_content(prompt)
@@ -300,14 +302,14 @@ def generate_recipe(ingredients, cuisine="Indian", diet="Balanced", allergies=No
         except Exception as e:
             error_msg = str(e)
             print(f"[DEBUG] AI Error (attempt {attempt+1}): {type(e).__name__}: {error_msg}")
-            if attempt == 0:
-                # Always retry with the next API key on ANY first-attempt failure
-                print(f"[DEBUG] First attempt failed ({type(e).__name__}), retrying with next key...")
+            if attempt < max_attempts - 1:
+                # Retry with the next API key on ANY failure
+                print(f"[DEBUG] Attempt {attempt+1} failed ({type(e).__name__}), retrying with next key...")
                 continue
             import traceback
             traceback.print_exc()
-            print(f"[DEBUG] Both attempts failed, using fallback recipe")
-            return generate_fallback_recipe(ingredients, variation)
+            print(f"[DEBUG] All attempts failed, using fallback recipe")
+            return generate_fallback_recipe(ingredients, cuisine=cuisine, diet=diet, variation=variation)
 
 
 # ==========================
@@ -392,7 +394,7 @@ FALLBACK_DISHES = [
     }
 ]
 
-def generate_fallback_recipe(ingredients, variation=0):
+def generate_fallback_recipe(ingredients, cuisine="Indian", diet="Balanced", variation=0):
 
     main = ingredients[0] if ingredients else "vegetables"
     dish = FALLBACK_DISHES[variation % len(FALLBACK_DISHES)]
@@ -415,22 +417,46 @@ def generate_fallback_recipe(ingredients, variation=0):
         "2 tbsp fresh coriander, chopped for garnish"
     ]
 
-    # Detect diet type from the main ingredient
+    # Detect diet type — prefer user's selection; otherwise scan ALL ingredients
+    all_ingredients_lower = " ".join(ingredients).lower()
     meat_keywords = ["chicken", "mutton", "fish", "prawn", "shrimp", "beef", "pork", "lamb"]
     egg_keywords = ["egg", "eggs"]
-    if any(k in main.lower() for k in meat_keywords):
-        diet_type = "Non Vegetarian"
-    elif any(k in main.lower() for k in egg_keywords):
+    has_meat = any(k in all_ingredients_lower for k in meat_keywords)
+    has_egg = any(k in all_ingredients_lower for k in egg_keywords)
+
+    if diet and diet not in ("", "Balanced"):
+        diet_type = diet  # Use the user's explicit selection
+    elif has_meat or has_egg:
         diet_type = "Non Vegetarian"
     else:
         diet_type = "Vegetarian"
 
     style = dish["suffix"]
 
+    # Build a better dish name using the key ingredient + style
+    # If the main ingredient isn't a protein, try to find one in the list
+    protein_ingredient = main
+    if has_meat:
+        for ing in ingredients:
+            if any(k in ing.lower() for k in meat_keywords):
+                protein_ingredient = ing
+                break
+    elif has_egg:
+        for ing in ingredients:
+            if any(k in ing.lower() for k in egg_keywords):
+                protein_ingredient = ing
+                break
+
+    # Name: e.g. "Chicken Noodles Curry" or "Noodles Curry"
+    if protein_ingredient != main:
+        dish_name = f"{protein_ingredient.title()} {main.title()} {style}"
+    else:
+        dish_name = f"{main.title()} {style}"
+
     return {
         "id": str(uuid.uuid4()),
-        "name": f"{main.title()} {style}",
-        "cuisine": "Indian",
+        "name": dish_name,
+        "cuisine": cuisine,
         "dietType": diet_type,
         "ingredients": full_ingredients,
         "prepTime": "15 minutes",
@@ -453,7 +479,7 @@ def generate_fallback_recipe(ingredients, variation=0):
             "Taste and adjust salt only at the end of cooking, as the flavors concentrate as the dish reduces.",
             f"For best texture, do not cut {main} pieces too small — medium-sized pieces hold their shape and absorb the masala well."
         ],
-        "pairing": f"{main.title()} {style} pairs beautifully with steamed basmati rice or freshly made chapati. Serve alongside a simple cucumber and onion salad dressed with lemon juice and a pinch of chaat masala. A small bowl of plain yogurt or raita on the side helps balance the spice levels.",
+        "pairing": f"{dish_name} pairs beautifully with steamed basmati rice or freshly made chapati. Serve alongside a simple cucumber and onion salad dressed with lemon juice and a pinch of chaat masala. A small bowl of plain yogurt or raita on the side helps balance the spice levels.",
         "calories": 280
     }
 
