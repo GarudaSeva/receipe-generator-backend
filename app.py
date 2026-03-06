@@ -31,15 +31,20 @@ if not API_KEYS:
         "No Gemini API keys found. Set at least GEMINI_API_KEY_1 in your .env file."
     )
 
+print(f"[STARTUP] Loaded {len(API_KEYS)} Gemini API key(s)")
+for i, k in enumerate(API_KEYS):
+    print(f"[STARTUP]   Key #{i+1}: {k[:8]}...{k[-4:]} (length={len(k)})")
+
 _current_key_index = 0
 
 def get_next_model():
     """Round-robin: returns a fresh model using the next API key each time."""
     global _current_key_index
-    key = API_KEYS[_current_key_index % len(API_KEYS)]
+    key_index = _current_key_index % len(API_KEYS)
+    key = API_KEYS[key_index]
     _current_key_index += 1
     genai.configure(api_key=key)
-    print(f"[DEBUG] Using API key #{(_current_key_index - 1) % len(API_KEYS) + 1}")
+    print(f"[LLM] Configuring Gemini with API key #{key_index + 1} ({key[:8]}...)")
     return genai.GenerativeModel("gemini-2.0-flash")
 
 # ==========================
@@ -238,34 +243,53 @@ def extract_calories(nutrition_text):
 def generate_recipe(ingredients, cuisine="Indian", diet="Balanced", allergies=None, variation=0):
 
     prompt = build_prompt(ingredients, cuisine, diet, allergies, variation)
-    print(f"[DEBUG] Generating recipe #{variation+1} for: {ingredients}")
+    print(f"\n{'='*60}")
+    print(f"[GENERATE] Recipe #{variation+1} | ingredients={ingredients} | cuisine={cuisine} | diet={diet} | allergies={allergies}")
+    print(f"[GENERATE] Prompt length: {len(prompt)} chars")
+    print(f"[GENERATE] Available API keys: {len(API_KEYS)}, max attempts: {min(3, len(API_KEYS))}")
 
     max_attempts = min(3, len(API_KEYS))  # Try up to 3 different keys
     for attempt in range(max_attempts):
         try:
             if attempt > 0:
                 wait = attempt * 2
-                print(f"[DEBUG] Retry attempt {attempt+1} with next API key, waiting {wait} seconds...")
+                print(f"[LLM] Retry attempt {attempt+1}/{max_attempts} with next API key, waiting {wait}s...")
                 time.sleep(wait)
 
+            print(f"[LLM] Attempt {attempt+1}/{max_attempts} — calling Gemini...")
+            start_time = time.time()
             current_model = get_next_model()
             response = current_model.generate_content(prompt)
+            elapsed = round(time.time() - start_time, 2)
+            print(f"[LLM] Gemini responded in {elapsed}s")
+
+            # Check for blocked/empty responses
+            if not response.text:
+                print(f"[LLM] WARNING: Empty response from Gemini (candidates={response.candidates})")
+                raise Exception("Empty response from Gemini API")
+
             text = response.text.strip()
-            print(f"[DEBUG] AI Response received, length: {len(text)}")
+            print(f"[LLM] Response length: {len(text)} chars")
+            print(f"[LLM] Response preview: {text[:200]}...")
 
             # Strip markdown code fences Gemini sometimes wraps responses in
             if "```" in text:
                 fence_match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", text)
                 if fence_match:
                     text = fence_match.group(1).strip()
+                    print(f"[LLM] Stripped code fences, cleaned length: {len(text)}")
 
             # Extract JSON object from the response
             match = re.search(r"\{[\s\S]*\}", text)
             if not match:
-                print(f"[DEBUG] No JSON object found in response: {text[:300]}")
+                print(f"[LLM] ERROR: No JSON object found in response")
+                print(f"[LLM] Full response text:\n{text[:500]}")
                 raise Exception("No JSON object found in AI response")
 
-            data = json.loads(match.group(0))
+            json_text = match.group(0)
+            print(f"[LLM] JSON extracted, length: {len(json_text)}")
+            data = json.loads(json_text)
+            print(f"[LLM] JSON parsed successfully, keys: {list(data.keys())}")
 
             # Normalize all fields — Gemini sometimes returns objects/dicts instead of strings
             process_steps   = normalize_list_of_strings(data.get("process", []))
@@ -281,9 +305,15 @@ def generate_recipe(ingredients, cuisine="Indian", diet="Balanced", allergies=No
             else:
                 benefits_text = str(benefits_raw).strip()
 
+            recipe_name = str(data.get("name", "")).strip()
+            print(f"[LLM] SUCCESS — Recipe name: '{recipe_name}'")
+            print(f"[LLM]   ingredients: {len(ingredient_list)}, process steps: {len(process_steps)}, tips: {len(tips_list)}")
+            print(f"[LLM]   nutrition: {nutrition_text[:80]}..." if len(nutrition_text) > 80 else f"[LLM]   nutrition: {nutrition_text}")
+            print(f"{'='*60}\n")
+
             return {
                 "id": str(uuid.uuid4()),
-                "name": str(data.get("name", "")).strip(),
+                "name": recipe_name,
                 "cuisine": str(data.get("cuisine", cuisine)).strip(),
                 "dietType": str(data.get("dietType", diet)).strip(),
                 "ingredients": ingredient_list if ingredient_list else list(ingredients),
@@ -301,14 +331,14 @@ def generate_recipe(ingredients, cuisine="Indian", diet="Balanced", allergies=No
 
         except Exception as e:
             error_msg = str(e)
-            print(f"[DEBUG] AI Error (attempt {attempt+1}): {type(e).__name__}: {error_msg}")
+            print(f"[LLM] FAILED attempt {attempt+1}/{max_attempts}: {type(e).__name__}: {error_msg}")
             if attempt < max_attempts - 1:
-                # Retry with the next API key on ANY failure
-                print(f"[DEBUG] Attempt {attempt+1} failed ({type(e).__name__}), retrying with next key...")
+                print(f"[LLM] Will retry with next API key...")
                 continue
             import traceback
             traceback.print_exc()
-            print(f"[DEBUG] All attempts failed, using fallback recipe")
+            print(f"[FALLBACK] All {max_attempts} LLM attempts failed — switching to fallback recipe")
+            print(f"{'='*60}\n")
             return generate_fallback_recipe(ingredients, cuisine=cuisine, diet=diet, variation=variation)
 
 
@@ -491,6 +521,9 @@ def generate_fallback_recipe(ingredients, cuisine="Indian", diet="Balanced", var
 @app.route("/recommend", methods=["POST"])
 def recommend():
     data = request.json
+    print(f"\n{'#'*60}")
+    print(f"[API] POST /recommend — raw payload: {json.dumps(data, default=str)[:500]}")
+
     if not data:
         return jsonify({"error": "No input data provided"}), 400
 
@@ -500,13 +533,23 @@ def recommend():
     allergies = data.get("allergies", [])
     top_n = data.get("top_n", 1)
 
+    print(f"[API] Cleaned ingredients: {ingredients}")
+    print(f"[API] cuisine={cuisine}, diet={diet}, allergies={allergies}, top_n={top_n}")
+
     if not ingredients:
+        print(f"[API] ERROR: No ingredients after cleaning")
         return jsonify({"error": "ingredients required"}), 400
 
     recipes = []
     for i in range(top_n):
+        print(f"\n[API] Generating recipe {i+1}/{top_n}...")
         recipe = generate_recipe(ingredients=ingredients, cuisine=cuisine, diet=diet, allergies=allergies, variation=i)
+        source = "LLM" if recipe.get("difficulty") != "Easy" else "FALLBACK"
+        print(f"[API] Recipe {i+1} done: '{recipe.get('name')}' (source: likely {source})")
         recipes.append(recipe)
+
+    print(f"[API] Returning {len(recipes)} recipe(s)")
+    print(f"{'#'*60}\n")
     return jsonify(recipes)
 
 
