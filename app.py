@@ -23,8 +23,13 @@ API_KEYS = [
     os.getenv("GEMINI_API_KEY_3"),
     os.getenv("GEMINI_API_KEY_4"),
 ]
-# Remove any None keys
+# Remove any None or empty keys
 API_KEYS = [k for k in API_KEYS if k]
+
+if not API_KEYS:
+    raise RuntimeError(
+        "No Gemini API keys found. Set at least GEMINI_API_KEY_1 in your .env file."
+    )
 
 _current_key_index = 0
 
@@ -62,10 +67,16 @@ def clean_ingredients(ingredients):
     if isinstance(ingredients, str):
         ingredients = re.split(r"[,\s]+", ingredients)
 
-    # Strip commas AND whitespace from each item, then filter empty ones
-    cleaned = []
+    # Expand each item by splitting on commas/spaces too
+    # (handles cases like ["egg,rice,onion"] sent as a single list element)
+    expanded = []
     for i in ingredients:
-        item = str(i).strip().strip(",").strip().lower()
+        parts = re.split(r"[,\s]+", str(i))
+        expanded.extend(parts)
+
+    cleaned = []
+    for item in expanded:
+        item = item.strip().strip(",").strip().lower()
         if item and item != ",":
             cleaned.append(item)
     return cleaned
@@ -80,64 +91,144 @@ DISH_STYLES = ["curry", "fry", "gravy", "masala", "biryani"]
 def build_prompt(ingredients, cuisine="Indian", diet="Balanced", allergies=None, variation=0):
 
     allergies = allergies or []
-
-    # Pick a different style hint for each variation
     style_hint = DISH_STYLES[variation % len(DISH_STYLES)]
 
-    return f"""
-You are an expert Indian home chef.
+    return f"""You are an expert Indian home chef and nutritionist.
 
-Ingredients available:
-{", ".join(ingredients)}
+Ingredients available: {", ".join(ingredients)}
+Cuisine: {cuisine}
+Diet: {diet}
+Allergies to avoid: {", ".join(allergies) if allergies else "None"}
+Style: {style_hint}
 
-Cuisine:
-{cuisine}
+TASK: Create one authentic, detailed Indian {style_hint} recipe using the ingredients above.
 
-Diet:
-{diet}
+MANDATORY RULES:
+1. Choose a REAL dish name (e.g. "Chicken Curry", "Egg Fried Rice", "Aloo Masala").
+2. Include ALL common Indian kitchen staples with exact quantities: cooking oil, onions, garlic, ginger, green chillies, curry leaves, mustard seeds, cumin seeds, turmeric powder, red chilli powder, coriander powder, garam masala, salt, fresh coriander.
+3. Every process step MUST be specific with actions, timings and quantities. Include at least 10 detailed steps.
+4. Respect allergies strictly. Match the diet type: {diet}.
+5. Nutrition MUST list per-serving values for: Calories, Protein, Carbohydrates, Fat, Fiber, Sodium.
+6. Benefits MUST be 4-5 detailed sentences explaining specific health benefits of the main ingredients and spices.
+7. Include at least 4 practical chef tips specific to this dish.
 
-Avoid allergies:
-{", ".join(allergies) if allergies else "None"}
+OUTPUT: Return ONLY a raw JSON object. No markdown, no backticks, no explanation before or after the JSON.
+All array items MUST be plain strings — NOT objects or numbered keys.
 
-Your task:
-
-1. Identify the MOST logical Indian dish using these ingredients.
-2. Prefer authentic home style cooking.
-3. You MUST also use common Indian kitchen staples in the recipe: cooking oil, onions, garlic, ginger, green chillies, curry leaves, mustard seeds, cumin seeds, turmeric powder, red chilli powder, coriander powder, garam masala, salt, and fresh coriander for garnish. Include these in the ingredients list.
-4. Make a {style_hint} style dish. Do NOT repeat the same dish type if called multiple times.
-
-Rules:
-- Choose a REAL dish name like "Chicken Curry", "Aloo Gobi", "Mutton Keema" etc.
-- Cooking steps must be practical and clear.
-- Do NOT use vague sentences.
-- The ingredients list MUST include all spices and oil used, not just the main items.
-
-GOOD step example:
-"Heat 2 tbsp oil in a kadai. Add mustard seeds and allow them to splutter."
-
-BAD step example:
-"Prepare ingredients and cook."
-
-Return JSON only.
-
-Format:
+Exact JSON structure to follow:
 
 {{
-"name": "",
-"cuisine": "",
-"dietType": "",
-"ingredients": [],
-"prepTime": "",
-"cookTime": "",
-"servings": "",
-"difficulty": "",
-"process": [],
-"nutrition": "",
-"benefits": "",
-"tips": [],
-"pairing": ""
-}}
-"""
+  "name": "Chicken Curry",
+  "cuisine": "{cuisine}",
+  "dietType": "{diet}",
+  "ingredients": [
+    "500g chicken, cut into 2-inch pieces",
+    "2 medium onions, finely chopped",
+    "2 ripe tomatoes, pureed",
+    "2 tbsp cooking oil",
+    "1 tsp cumin seeds",
+    "1 tbsp ginger-garlic paste",
+    "8-10 curry leaves",
+    "2 green chillies, slit",
+    "1 tsp turmeric powder",
+    "1.5 tsp red chilli powder",
+    "1 tsp coriander powder",
+    "0.5 tsp garam masala",
+    "salt to taste",
+    "2 tbsp fresh coriander, chopped"
+  ],
+  "prepTime": "15 minutes",
+  "cookTime": "35 minutes",
+  "servings": "3-4 people",
+  "difficulty": "Medium",
+  "process": [
+    "Wash the chicken pieces thoroughly under cold water, pat completely dry with paper towels and set aside.",
+    "Heat 2 tbsp oil in a heavy-bottomed kadai over medium-high heat until shimmering hot.",
+    "Add 1 tsp cumin seeds and wait 20-30 seconds until they splutter and turn golden brown.",
+    "Add curry leaves and slit green chillies, fry for 15 seconds until fragrant.",
+    "Add finely chopped onions and cook on medium heat for 8-10 minutes, stirring often, until deep golden brown.",
+    "Add 1 tbsp ginger-garlic paste and cook for 2 minutes, stirring constantly, until the raw smell disappears.",
+    "Add pureed tomatoes and cook for 5-6 minutes until the oil starts to separate from the masala.",
+    "Lower the heat and add turmeric, red chilli powder and coriander powder. Stir for 30 seconds.",
+    "Add the chicken pieces, increase heat to medium-high and sear for 4-5 minutes, turning to brown all sides.",
+    "Add 3/4 cup warm water and salt to taste. Stir well to coat chicken evenly with the masala.",
+    "Cover with a tight lid, reduce heat to low and cook for 20 minutes. Stir once halfway through.",
+    "Uncover, increase heat to medium and cook for 3-4 more minutes to reduce gravy to desired consistency.",
+    "Sprinkle garam masala, stir gently and cook for 1 final minute. Turn off the heat.",
+    "Garnish generously with freshly chopped coriander leaves. Serve hot with steamed rice or chapati."
+  ],
+  "nutrition": "Calories: ~420 kcal\\nProtein: 32g\\nCarbohydrates: 18g\\nFat: 22g\\nFiber: 3g\\nSodium: 580mg",
+  "benefits": "Chicken is an excellent source of lean protein that supports muscle repair, growth and immune function. Turmeric contains curcumin, a powerful anti-inflammatory compound that supports joint health, brain function and immunity. Ginger and garlic have proven antibacterial and antioxidant properties that aid digestion and support cardiovascular health. Cumin seeds stimulate digestive enzymes and help reduce bloating and acidity after meals. The combination of these spices provides essential micronutrients including iron, magnesium, zinc and B-vitamins that support energy metabolism.",
+  "tips": [
+    "Pat chicken completely dry before cooking — any surface moisture prevents proper searing and results in a watery curry.",
+    "Fry the onions with patience on medium heat — deeply caramelized golden-brown onions are the biggest secret to a rich, full-bodied curry.",
+    "Always add dry spice powders on low heat and stir immediately for 30 seconds — high heat burns the spices and turns the dish bitter.",
+    "For a richer, creamier gravy, stir in 2 tbsp fresh cream or thick coconut milk in the final 2 minutes of cooking.",
+    "Rest the curry for 5-10 minutes off the heat before serving — the flavors continue to develop and deepen as it sits."
+  ],
+  "pairing": "Serve with steamed basmati rice or butter naan for a complete meal. A side of sliced onions drizzled with lemon juice, fresh cucumber raita and a wedge of lemon complement the spices beautifully. Finish the meal with a tall glass of chilled salted lassi to balance the heat."
+}}"""
+
+
+# ==========================
+# NORMALIZER HELPERS
+# ==========================
+
+def normalize_list_of_strings(data):
+    """Convert a list of strings or objects into a clean list of strings."""
+    if not data or not isinstance(data, list):
+        return []
+    result = []
+    for item in data:
+        if isinstance(item, str):
+            text = item.strip()
+            if text:
+                result.append(text)
+        elif isinstance(item, dict):
+            # Try common key names Gemini might use for step/ingredient objects
+            for key in ["description", "instruction", "step", "text", "content", "detail", "name", "item"]:
+                if key in item and isinstance(item[key], str):
+                    result.append(item[key].strip())
+                    break
+            else:
+                # Fallback: join all non-empty string values
+                parts = [str(v) for v in item.values() if v and isinstance(v, str)]
+                if parts:
+                    result.append(" — ".join(parts))
+        else:
+            text = str(item).strip()
+            if text:
+                result.append(text)
+    return result
+
+
+def normalize_nutrition(nutrition):
+    """Normalize nutrition field — could be a plain string or a dict."""
+    if not nutrition:
+        return ""
+    if isinstance(nutrition, str):
+        return nutrition.strip()
+    if isinstance(nutrition, dict):
+        key_map = {
+            "calories": "Calories", "protein": "Protein",
+            "carbohydrates": "Carbohydrates", "carbs": "Carbohydrates",
+            "fat": "Fat", "fiber": "Fiber", "sodium": "Sodium",
+            "sugar": "Sugar", "cholesterol": "Cholesterol"
+        }
+        lines = []
+        for k, v in nutrition.items():
+            label = key_map.get(k.lower(), k.replace("_", " ").title())
+            lines.append(f"{label}: {v}")
+        return "\n".join(lines)
+    return str(nutrition)
+
+
+def extract_calories(nutrition_text):
+    """Extract numeric calories value from a nutrition string like 'Calories: ~420 kcal'."""
+    if not nutrition_text:
+        return None
+    match = re.search(r"[Cc]alories[:\s]*~?(\d+)", nutrition_text)
+    return int(match.group(1)) if match else None
 
 
 # ==========================
@@ -149,11 +240,10 @@ def generate_recipe(ingredients, cuisine="Indian", diet="Balanced", allergies=No
     prompt = build_prompt(ingredients, cuisine, diet, allergies, variation)
     print(f"[DEBUG] Generating recipe #{variation+1} for: {ingredients}")
 
-    # Retry up to 2 times with delay for rate limits
     for attempt in range(2):
         try:
             if attempt > 0:
-                print(f"[DEBUG] Retry with next API key, waiting 2 seconds...")
+                print(f"[DEBUG] Retry attempt 2 with next API key, waiting 2 seconds...")
                 time.sleep(2)
 
             current_model = get_next_model()
@@ -161,39 +251,62 @@ def generate_recipe(ingredients, cuisine="Indian", diet="Balanced", allergies=No
             text = response.text.strip()
             print(f"[DEBUG] AI Response received, length: {len(text)}")
 
-            match = re.search(r"\{.*\}", text, re.DOTALL)
+            # Strip markdown code fences Gemini sometimes wraps responses in
+            if "```" in text:
+                fence_match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", text)
+                if fence_match:
+                    text = fence_match.group(1).strip()
 
-            if match:
-                data = json.loads(match.group(0))
+            # Extract JSON object from the response
+            match = re.search(r"\{[\s\S]*\}", text)
+            if not match:
+                print(f"[DEBUG] No JSON object found in response: {text[:300]}")
+                raise Exception("No JSON object found in AI response")
+
+            data = json.loads(match.group(0))
+
+            # Normalize all fields — Gemini sometimes returns objects/dicts instead of strings
+            process_steps   = normalize_list_of_strings(data.get("process", []))
+            ingredient_list = normalize_list_of_strings(data.get("ingredients", []))
+            tips_list       = normalize_list_of_strings(data.get("tips", []))
+            nutrition_text  = normalize_nutrition(data.get("nutrition", ""))
+
+            benefits_raw = data.get("benefits", "")
+            if isinstance(benefits_raw, list):
+                benefits_text = " ".join(normalize_list_of_strings(benefits_raw))
+            elif isinstance(benefits_raw, dict):
+                benefits_text = " ".join(str(v) for v in benefits_raw.values() if isinstance(v, str))
             else:
-                print(f"[DEBUG] No JSON found in response: {text[:200]}")
-                raise Exception("Invalid JSON")
+                benefits_text = str(benefits_raw).strip()
 
             return {
                 "id": str(uuid.uuid4()),
-                "name": data.get("name"),
-                "cuisine": data.get("cuisine", cuisine),
-                "dietType": data.get("dietType", diet),
-                "ingredients": data.get("ingredients", ingredients),
-                "prepTime": data.get("prepTime", "15 min"),
-                "cookTime": data.get("cookTime", "25 min"),
-                "servings": data.get("servings", "2"),
-                "difficulty": data.get("difficulty", "Easy"),
-                "process": data.get("process", []),
-                "nutrition": data.get("nutrition", ""),
-                "benefits": data.get("benefits", ""),
-                "tips": data.get("tips", []),
-                "pairing": data.get("pairing", "")
+                "name": str(data.get("name", "")).strip(),
+                "cuisine": str(data.get("cuisine", cuisine)).strip(),
+                "dietType": str(data.get("dietType", diet)).strip(),
+                "ingredients": ingredient_list if ingredient_list else list(ingredients),
+                "prepTime": str(data.get("prepTime", "15 minutes")),
+                "cookTime": str(data.get("cookTime", "25 minutes")),
+                "servings": str(data.get("servings", "2-3 people")),
+                "difficulty": str(data.get("difficulty", "Medium")),
+                "process": process_steps,
+                "nutrition": nutrition_text,
+                "benefits": benefits_text,
+                "tips": tips_list,
+                "pairing": str(data.get("pairing", "")).strip(),
+                "calories": extract_calories(nutrition_text)
             }
 
         except Exception as e:
             error_msg = str(e)
             print(f"[DEBUG] AI Error (attempt {attempt+1}): {type(e).__name__}: {error_msg}")
-            # If rate limited and first attempt, retry with next key
-            if ("429" in error_msg or "ResourceExhausted" in str(type(e).__name__)) and attempt == 0:
+            if attempt == 0:
+                # Always retry with the next API key on ANY first-attempt failure
+                print(f"[DEBUG] First attempt failed ({type(e).__name__}), retrying with next key...")
                 continue
             import traceback
             traceback.print_exc()
+            print(f"[DEBUG] Both attempts failed, using fallback recipe")
             return generate_fallback_recipe(ingredients, variation)
 
 
@@ -288,37 +401,60 @@ def generate_fallback_recipe(ingredients, variation=0):
     # Build a proper ingredients list with kitchen staples
     full_ingredients = list(ingredients) + [
         "2 tbsp cooking oil",
-        "1 medium onion",
+        "1 medium onion, finely chopped",
         "1 tbsp ginger-garlic paste",
         "8-10 curry leaves",
-        "2 green chillies",
+        "2 green chillies, slit",
         "1 tsp mustard seeds",
         "1 tsp cumin seeds",
         "1/2 tsp turmeric powder",
         "1 tsp red chilli powder",
+        "1 tsp coriander powder",
+        "1/2 tsp garam masala",
         "salt to taste",
-        "fresh coriander for garnish"
+        "2 tbsp fresh coriander, chopped for garnish"
     ]
+
+    # Detect diet type from the main ingredient
+    meat_keywords = ["chicken", "mutton", "fish", "prawn", "shrimp", "beef", "pork", "lamb"]
+    egg_keywords = ["egg", "eggs"]
+    if any(k in main.lower() for k in meat_keywords):
+        diet_type = "Non Vegetarian"
+    elif any(k in main.lower() for k in egg_keywords):
+        diet_type = "Non Vegetarian"
+    else:
+        diet_type = "Vegetarian"
+
+    style = dish["suffix"]
 
     return {
         "id": str(uuid.uuid4()),
-        "name": f"{main.title()} {dish['suffix']}",
+        "name": f"{main.title()} {style}",
         "cuisine": "Indian",
-        "dietType": "Vegetarian",
+        "dietType": diet_type,
         "ingredients": full_ingredients,
-        "prepTime": "10 min",
-        "cookTime": "20 min",
-        "servings": "2",
+        "prepTime": "15 minutes",
+        "cookTime": "25 minutes",
+        "servings": "2-3 people",
         "difficulty": "Easy",
         "process": process,
-        "nutrition": "Rich in vitamins, minerals and fiber. Provides sustained energy and supports digestion.",
-        "benefits": "Contains antioxidants from spices like turmeric and cumin. Supports immunity and healthy metabolism.",
+        "nutrition": "Calories: ~280 kcal\nProtein: 8g\nCarbohydrates: 32g\nFat: 12g\nFiber: 5g\nSodium: 490mg",
+        "benefits": (
+            "Turmeric contains curcumin, a powerful anti-inflammatory compound that supports joint health and immunity. "
+            "Mustard seeds and curry leaves are rich in antioxidants that protect cells from oxidative stress. "
+            "Ginger aids digestion, reduces nausea and has proven anti-bacterial properties that support gut health. "
+            "Cumin seeds stimulate digestive enzymes, helping reduce bloating and improving nutrient absorption. "
+            "The combination of these spices provides iron, magnesium and essential B-vitamins that support energy metabolism and immune function."
+        ),
         "tips": [
-            "Cook on medium heat to avoid burning spices",
-            "Use fresh vegetables for best flavor",
-            "Adjust chilli powder to your spice tolerance"
+            "Always heat the oil well before adding mustard seeds — cold oil prevents the seeds from spluttering properly.",
+            "Add powdered spices on low heat and stir immediately for 30 seconds — high heat burns them and makes the dish bitter.",
+            "Use fresh curry leaves for maximum fragrance — dried ones lose most of their aroma and flavor.",
+            "Taste and adjust salt only at the end of cooking, as the flavors concentrate as the dish reduces.",
+            f"For best texture, do not cut {main} pieces too small — medium-sized pieces hold their shape and absorb the masala well."
         ],
-        "pairing": "Serve with steamed rice or hot chapati"
+        "pairing": f"{main.title()} {style} pairs beautifully with steamed basmati rice or freshly made chapati. Serve alongside a simple cucumber and onion salad dressed with lemon juice and a pinch of chaat masala. A small bowl of plain yogurt or raita on the side helps balance the spice levels.",
+        "calories": 280
     }
 
 
