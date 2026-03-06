@@ -1,0 +1,637 @@
+{
+  "users": {
+    "ganesh.bora@artofliving.org": {
+      "name": "Ganesh Bora",
+      "password": "123",
+      "profile": {
+        "name": "Ganesh Bora",
+        "email": "ganesh.bora@artofliving.org",
+        "dietGoals": [
+          "weight loss"
+        ],
+        "dietType": "non vegetarian",
+        "cuisinePreferences": [
+          "indian",
+          "chineses"
+        ],
+        "allergies": [
+          "curd",
+          "ghee"
+        ],
+        "favoriteIngredients": [
+          "chicken",
+          "onions",
+          "carrot",
+          "beetroot"
+        ],
+        "favoriteVegetables": [
+          "spinach",
+          "carrot"
+        ],
+        "favoriteDishes": [
+          "biryani",
+          "samosa",
+          "chicken fry",
+          "fried rice",
+          "noodles",
+          "pizza",
+          "burger"
+        ]
+      },
+      "favorites": [],
+      "searchHistory": []
+    },
+    "ganesh.bora1@artofliving.org": {
+      "name": "Ganesh Bora",
+      "password": "Ganesh@1907",
+      "profile": {
+        "name": "Ganesh Bora",
+        "email": "ganesh.bora1@artofliving.org",
+        "dietGoals": [
+          "weight loss"
+        ],
+        "dietType": "non-veg",
+        "cuisinePreferences": [
+          "indian",
+          "chinese"
+        ],
+        "allergies": [
+          "ghee",
+          "mutton"
+        ],
+        "favoriteIngredients": [
+          "chicken",
+          "prawns",
+          "eggs"
+        ],
+        "favoriteVegetables": [
+          "carrot",
+          "onion",
+          "beetroot"
+        ],
+        "favoriteDishes": [
+          "biryani",
+          "chicken curry",
+          "tandoori"
+        ]
+      },
+      "favorites": [],
+      "searchHistory": [
+        [
+          {
+            "benefits": "Contains antioxidants from spices like turmeric and cumin. Supports immunity and healthy metabolism.",
+            "cookTime": "20 min",
+            "cuisine": "Indian",
+            "dietType": "Vegetarian",
+            "difficulty": "Easy",
+            "id": "94c8d38d-6925-4c0a-bca6-ff6a959dc924",
+            "ingredients": [
+              "chicken",
+              "egg",
+              "mushroom",
+              "2 tbsp cooking oil",
+              "1 medium onion",
+              "1 tbsp ginger-garlic paste",
+              "8-10 curry leaves",
+              "2 green chillies",
+              "1 tsp mustard seeds",
+              "1 tsp cumin seeds",
+              "1/2 tsp turmeric powder",
+              "1 tsp red chilli powder",
+              "salt to taste",
+              "fresh coriander for garnish"
+            ],
+            "name": "Chicken Curry",
+            "nutrition": "Rich in vitamins, minerals and fiber. Provides sustained energy and supports digestion.",
+            "pairing": "Serve with steamed rice or hot chapati",
+            "prepTime": "10 min",
+            "process": [
+              "Wash and cut the chicken into medium sized pieces.",
+              "Heat 2 tablespoons oil in a deep kadai on medium flame.",
+              "Add 1 tsp mustard seeds, 1 tsp cumin seeds and let them splutter.",
+              "Add curry leaves, 2 dried red chillies and a pinch of hing (asafoetida).",
+              "Add 1 large finely chopped onion and saut\u00e9 for 5-7 minutes until golden brown.",
+              "Add 1 tbsp ginger-garlic paste and saut\u00e9 for 2 minutes until raw smell goes away.",
+              "Add the chicken pieces, 1 tsp turmeric, 1 tsp red chilli powder, 1 tsp coriander powder and salt.",
+              "Mix well, add 1 cup water, cover and cook on low flame for 15-20 minutes.",
+              "Add 1/2 tsp garam masala, stir well and cook for 2 more minutes.",
+              "Turn off the stove. Garnish with fresh chopped coriander leaves. Serve hot with rice."
+            ],
+            "servings": "2",
+            "tips": [
+              "Cook on medium heat to avoid burning spices",
+              "Use fresh vegetables for best flavor",
+              "Adjust chilli powder to your spice tolerance"
+            ]
+          },
+          {
+            "benefits": "Contains antioxidants from spices like turmeric and cumin. Supports immunity and healthy metabolism.",
+            "cookTime": "20 min",
+            "cuisine": "Indian",
+            "dietType": "Vegetarian",
+            "difficulty": "Easy",
+            "id": "b88b3dfb-55d8-4a82-aeb5-5295cfc283ba",
+            "ingredients": [
+              "chicken",
+              "egg",
+              "mushroom",
+              "2 tbsp cooking oil",
+              "1 medium onion",
+              "1 tbsp ginger-garlic paste",
+              "8-10 curry leaves",
+              "2 green chillies",
+              "1 tsp mustard seeds",
+              "1 tsp cumin seeds",
+              "1/2 tsp turmeric powder",
+              "1 tsp red chilli powder",
+              "salt to taste",
+              "fresh coriander for garnish"
+            ],
+            "name": "Chicken Fry",
+            "nutrition": "Rich in vitamins, minerals and fiber. Provides sustained energy and supports digestion.",
+            "pairing": "Serve with steamed rice or hot chapati",
+            "prepTime": "10 min",
+            "process": [
+              "Wash and chop the chicken into thin slices or small pieces.",
+              "Heat 3 tablespoons oil in a flat tawa or iron pan on medium-high flame.",
+              "Add 1 tsp mustard seeds and wait for them to crackle.",
+              "Add 8-10 curry leaves and 2 slit green chillies, saut\u00e9 for 30 seconds.",
+              "Add 1 medium sliced onion and fry for 4-5 minutes until edges turn brown.",
+              "Add the chicken slices, spread evenly in the pan.",
+              "Sprinkle 1/2 tsp turmeric, 1 tsp red chilli powder, and salt to taste.",
+              "Cook on medium flame for 10-12 minutes, flipping occasionally for even crispiness.",
+              "Increase flame to high for last 2 minutes to get crispy edges.",
+              "Switch off stove. Squeeze half a lemon and garnish with chopped coriander. Serve hot."
+            ],
+            "servings": "2",
+            "tips": [
+              "Cook on medium heat to avoid burning spices",
+              "Use fresh vegetables for best flavor",
+              "Adjust chilli powder to your spice tolerance"
+            ]
+          },
+          {
+            "benefits": "Contains antioxidants from spices like turmeric and cumin. Supports immunity and healthy metabolism.",
+            "cookTime": "20 min",
+            "cuisine": "Indian",
+            "dietType": "Vegetarian",
+            "difficulty": "Easy",
+            "id": "bc56c00c-250d-4906-982f-5c34af9ab47b",
+            "ingredients": [
+              "chicken",
+              "egg",
+              "mushroom",
+              "2 tbsp cooking oil",
+              "1 medium onion",
+              "1 tbsp ginger-garlic paste",
+              "8-10 curry leaves",
+              "2 green chillies",
+              "1 tsp mustard seeds",
+              "1 tsp cumin seeds",
+              "1/2 tsp turmeric powder",
+              "1 tsp red chilli powder",
+              "salt to taste",
+              "fresh coriander for garnish"
+            ],
+            "name": "Chicken Masala",
+            "nutrition": "Rich in vitamins, minerals and fiber. Provides sustained energy and supports digestion.",
+            "pairing": "Serve with steamed rice or hot chapati",
+            "prepTime": "10 min",
+            "process": [
+              "Clean and cut the chicken into bite-sized cubes.",
+              "Heat 2 tbsp oil + 1 tbsp ghee in a heavy bottom pan on medium flame.",
+              "Add 1 tsp cumin seeds, 2 cloves, 1 small cinnamon stick and let them sizzle.",
+              "Add 2 medium finely chopped onions and cook for 8-10 minutes until deep golden.",
+              "Add 1 tbsp ginger-garlic paste, cook for 2 minutes until fragrant.",
+              "Add 2 chopped tomatoes and cook until they become soft and oil separates (5-7 min).",
+              "Add 1 tsp turmeric, 1.5 tsp red chilli powder, 1 tsp coriander powder, salt to taste.",
+              "Add the chicken pieces and mix well with the masala. Cook for 3 minutes.",
+              "Add 1/2 cup water, cover with lid and cook on low flame for 15 minutes until tender.",
+              "Add 1 tsp garam masala, mix gently. Garnish with fresh coriander and serve with chapati."
+            ],
+            "servings": "2",
+            "tips": [
+              "Cook on medium heat to avoid burning spices",
+              "Use fresh vegetables for best flavor",
+              "Adjust chilli powder to your spice tolerance"
+            ]
+          }
+        ],
+        [
+          {
+            "benefits": "Contains antioxidants from spices like turmeric and cumin. Supports immunity and healthy metabolism.",
+            "cookTime": "20 min",
+            "cuisine": "Indian",
+            "dietType": "Vegetarian",
+            "difficulty": "Easy",
+            "id": "ed35b6b3-baca-4235-a9ab-8a37891f6a7a",
+            "ingredients": [
+              "chicken",
+              "2 tbsp cooking oil",
+              "1 medium onion",
+              "1 tbsp ginger-garlic paste",
+              "8-10 curry leaves",
+              "2 green chillies",
+              "1 tsp mustard seeds",
+              "1 tsp cumin seeds",
+              "1/2 tsp turmeric powder",
+              "1 tsp red chilli powder",
+              "salt to taste",
+              "fresh coriander for garnish"
+            ],
+            "name": "Chicken Curry",
+            "nutrition": "Rich in vitamins, minerals and fiber. Provides sustained energy and supports digestion.",
+            "pairing": "Serve with steamed rice or hot chapati",
+            "prepTime": "10 min",
+            "process": [
+              "Wash and cut the chicken into medium sized pieces.",
+              "Heat 2 tablespoons oil in a deep kadai on medium flame.",
+              "Add 1 tsp mustard seeds, 1 tsp cumin seeds and let them splutter.",
+              "Add curry leaves, 2 dried red chillies and a pinch of hing (asafoetida).",
+              "Add 1 large finely chopped onion and saut\u00e9 for 5-7 minutes until golden brown.",
+              "Add 1 tbsp ginger-garlic paste and saut\u00e9 for 2 minutes until raw smell goes away.",
+              "Add the chicken pieces, 1 tsp turmeric, 1 tsp red chilli powder, 1 tsp coriander powder and salt.",
+              "Mix well, add 1 cup water, cover and cook on low flame for 15-20 minutes.",
+              "Add 1/2 tsp garam masala, stir well and cook for 2 more minutes.",
+              "Turn off the stove. Garnish with fresh chopped coriander leaves. Serve hot with rice."
+            ],
+            "servings": "2",
+            "tips": [
+              "Cook on medium heat to avoid burning spices",
+              "Use fresh vegetables for best flavor",
+              "Adjust chilli powder to your spice tolerance"
+            ]
+          },
+          {
+            "benefits": "Contains antioxidants from spices like turmeric and cumin. Supports immunity and healthy metabolism.",
+            "cookTime": "20 min",
+            "cuisine": "Indian",
+            "dietType": "Vegetarian",
+            "difficulty": "Easy",
+            "id": "e7aff793-af4c-4a9e-99d7-c966ad28faa6",
+            "ingredients": [
+              "chicken",
+              "2 tbsp cooking oil",
+              "1 medium onion",
+              "1 tbsp ginger-garlic paste",
+              "8-10 curry leaves",
+              "2 green chillies",
+              "1 tsp mustard seeds",
+              "1 tsp cumin seeds",
+              "1/2 tsp turmeric powder",
+              "1 tsp red chilli powder",
+              "salt to taste",
+              "fresh coriander for garnish"
+            ],
+            "name": "Chicken Fry",
+            "nutrition": "Rich in vitamins, minerals and fiber. Provides sustained energy and supports digestion.",
+            "pairing": "Serve with steamed rice or hot chapati",
+            "prepTime": "10 min",
+            "process": [
+              "Wash and chop the chicken into thin slices or small pieces.",
+              "Heat 3 tablespoons oil in a flat tawa or iron pan on medium-high flame.",
+              "Add 1 tsp mustard seeds and wait for them to crackle.",
+              "Add 8-10 curry leaves and 2 slit green chillies, saut\u00e9 for 30 seconds.",
+              "Add 1 medium sliced onion and fry for 4-5 minutes until edges turn brown.",
+              "Add the chicken slices, spread evenly in the pan.",
+              "Sprinkle 1/2 tsp turmeric, 1 tsp red chilli powder, and salt to taste.",
+              "Cook on medium flame for 10-12 minutes, flipping occasionally for even crispiness.",
+              "Increase flame to high for last 2 minutes to get crispy edges.",
+              "Switch off stove. Squeeze half a lemon and garnish with chopped coriander. Serve hot."
+            ],
+            "servings": "2",
+            "tips": [
+              "Cook on medium heat to avoid burning spices",
+              "Use fresh vegetables for best flavor",
+              "Adjust chilli powder to your spice tolerance"
+            ]
+          },
+          {
+            "benefits": "Contains antioxidants from spices like turmeric and cumin. Supports immunity and healthy metabolism.",
+            "cookTime": "20 min",
+            "cuisine": "Indian",
+            "dietType": "Vegetarian",
+            "difficulty": "Easy",
+            "id": "443c5b90-8012-43b5-9872-48e678ea16f6",
+            "ingredients": [
+              "chicken",
+              "2 tbsp cooking oil",
+              "1 medium onion",
+              "1 tbsp ginger-garlic paste",
+              "8-10 curry leaves",
+              "2 green chillies",
+              "1 tsp mustard seeds",
+              "1 tsp cumin seeds",
+              "1/2 tsp turmeric powder",
+              "1 tsp red chilli powder",
+              "salt to taste",
+              "fresh coriander for garnish"
+            ],
+            "name": "Chicken Masala",
+            "nutrition": "Rich in vitamins, minerals and fiber. Provides sustained energy and supports digestion.",
+            "pairing": "Serve with steamed rice or hot chapati",
+            "prepTime": "10 min",
+            "process": [
+              "Clean and cut the chicken into bite-sized cubes.",
+              "Heat 2 tbsp oil + 1 tbsp ghee in a heavy bottom pan on medium flame.",
+              "Add 1 tsp cumin seeds, 2 cloves, 1 small cinnamon stick and let them sizzle.",
+              "Add 2 medium finely chopped onions and cook for 8-10 minutes until deep golden.",
+              "Add 1 tbsp ginger-garlic paste, cook for 2 minutes until fragrant.",
+              "Add 2 chopped tomatoes and cook until they become soft and oil separates (5-7 min).",
+              "Add 1 tsp turmeric, 1.5 tsp red chilli powder, 1 tsp coriander powder, salt to taste.",
+              "Add the chicken pieces and mix well with the masala. Cook for 3 minutes.",
+              "Add 1/2 cup water, cover with lid and cook on low flame for 15 minutes until tender.",
+              "Add 1 tsp garam masala, mix gently. Garnish with fresh coriander and serve with chapati."
+            ],
+            "servings": "2",
+            "tips": [
+              "Cook on medium heat to avoid burning spices",
+              "Use fresh vegetables for best flavor",
+              "Adjust chilli powder to your spice tolerance"
+            ]
+          }
+        ],
+        [
+          {
+            "benefits": "Contains antioxidants from spices like turmeric and cumin. Supports immunity and healthy metabolism.",
+            "cookTime": "20 min",
+            "cuisine": "Indian",
+            "dietType": "Vegetarian",
+            "difficulty": "Easy",
+            "id": "bac0b889-ec11-48a6-a10e-4ed36518355c",
+            "ingredients": [
+              "potatoes",
+              "carrot",
+              "mushroom",
+              "2 tbsp cooking oil",
+              "1 medium onion",
+              "1 tbsp ginger-garlic paste",
+              "8-10 curry leaves",
+              "2 green chillies",
+              "1 tsp mustard seeds",
+              "1 tsp cumin seeds",
+              "1/2 tsp turmeric powder",
+              "1 tsp red chilli powder",
+              "salt to taste",
+              "fresh coriander for garnish"
+            ],
+            "name": "Potatoes Curry",
+            "nutrition": "Rich in vitamins, minerals and fiber. Provides sustained energy and supports digestion.",
+            "pairing": "Serve with steamed rice or hot chapati",
+            "prepTime": "10 min",
+            "process": [
+              "Wash and cut the potatoes into medium sized pieces.",
+              "Heat 2 tablespoons oil in a deep kadai on medium flame.",
+              "Add 1 tsp mustard seeds, 1 tsp cumin seeds and let them splutter.",
+              "Add curry leaves, 2 dried red chillies and a pinch of hing (asafoetida).",
+              "Add 1 large finely chopped onion and saut\u00e9 for 5-7 minutes until golden brown.",
+              "Add 1 tbsp ginger-garlic paste and saut\u00e9 for 2 minutes until raw smell goes away.",
+              "Add the potatoes pieces, 1 tsp turmeric, 1 tsp red chilli powder, 1 tsp coriander powder and salt.",
+              "Mix well, add 1 cup water, cover and cook on low flame for 15-20 minutes.",
+              "Add 1/2 tsp garam masala, stir well and cook for 2 more minutes.",
+              "Turn off the stove. Garnish with fresh chopped coriander leaves. Serve hot with rice."
+            ],
+            "servings": "2",
+            "tips": [
+              "Cook on medium heat to avoid burning spices",
+              "Use fresh vegetables for best flavor",
+              "Adjust chilli powder to your spice tolerance"
+            ]
+          },
+          {
+            "benefits": "Contains antioxidants from spices like turmeric and cumin. Supports immunity and healthy metabolism.",
+            "cookTime": "20 min",
+            "cuisine": "Indian",
+            "dietType": "Vegetarian",
+            "difficulty": "Easy",
+            "id": "d025368d-a737-4a9f-8367-f9edd4538f3f",
+            "ingredients": [
+              "potatoes",
+              "carrot",
+              "mushroom",
+              "2 tbsp cooking oil",
+              "1 medium onion",
+              "1 tbsp ginger-garlic paste",
+              "8-10 curry leaves",
+              "2 green chillies",
+              "1 tsp mustard seeds",
+              "1 tsp cumin seeds",
+              "1/2 tsp turmeric powder",
+              "1 tsp red chilli powder",
+              "salt to taste",
+              "fresh coriander for garnish"
+            ],
+            "name": "Potatoes Fry",
+            "nutrition": "Rich in vitamins, minerals and fiber. Provides sustained energy and supports digestion.",
+            "pairing": "Serve with steamed rice or hot chapati",
+            "prepTime": "10 min",
+            "process": [
+              "Wash and chop the potatoes into thin slices or small pieces.",
+              "Heat 3 tablespoons oil in a flat tawa or iron pan on medium-high flame.",
+              "Add 1 tsp mustard seeds and wait for them to crackle.",
+              "Add 8-10 curry leaves and 2 slit green chillies, saut\u00e9 for 30 seconds.",
+              "Add 1 medium sliced onion and fry for 4-5 minutes until edges turn brown.",
+              "Add the potatoes slices, spread evenly in the pan.",
+              "Sprinkle 1/2 tsp turmeric, 1 tsp red chilli powder, and salt to taste.",
+              "Cook on medium flame for 10-12 minutes, flipping occasionally for even crispiness.",
+              "Increase flame to high for last 2 minutes to get crispy edges.",
+              "Switch off stove. Squeeze half a lemon and garnish with chopped coriander. Serve hot."
+            ],
+            "servings": "2",
+            "tips": [
+              "Cook on medium heat to avoid burning spices",
+              "Use fresh vegetables for best flavor",
+              "Adjust chilli powder to your spice tolerance"
+            ]
+          },
+          {
+            "benefits": "Contains antioxidants from spices like turmeric and cumin. Supports immunity and healthy metabolism.",
+            "cookTime": "20 min",
+            "cuisine": "Indian",
+            "dietType": "Vegetarian",
+            "difficulty": "Easy",
+            "id": "0f51f835-d245-4137-9482-bb544060c718",
+            "ingredients": [
+              "potatoes",
+              "carrot",
+              "mushroom",
+              "2 tbsp cooking oil",
+              "1 medium onion",
+              "1 tbsp ginger-garlic paste",
+              "8-10 curry leaves",
+              "2 green chillies",
+              "1 tsp mustard seeds",
+              "1 tsp cumin seeds",
+              "1/2 tsp turmeric powder",
+              "1 tsp red chilli powder",
+              "salt to taste",
+              "fresh coriander for garnish"
+            ],
+            "name": "Potatoes Masala",
+            "nutrition": "Rich in vitamins, minerals and fiber. Provides sustained energy and supports digestion.",
+            "pairing": "Serve with steamed rice or hot chapati",
+            "prepTime": "10 min",
+            "process": [
+              "Clean and cut the potatoes into bite-sized cubes.",
+              "Heat 2 tbsp oil + 1 tbsp ghee in a heavy bottom pan on medium flame.",
+              "Add 1 tsp cumin seeds, 2 cloves, 1 small cinnamon stick and let them sizzle.",
+              "Add 2 medium finely chopped onions and cook for 8-10 minutes until deep golden.",
+              "Add 1 tbsp ginger-garlic paste, cook for 2 minutes until fragrant.",
+              "Add 2 chopped tomatoes and cook until they become soft and oil separates (5-7 min).",
+              "Add 1 tsp turmeric, 1.5 tsp red chilli powder, 1 tsp coriander powder, salt to taste.",
+              "Add the potatoes pieces and mix well with the masala. Cook for 3 minutes.",
+              "Add 1/2 cup water, cover with lid and cook on low flame for 15 minutes until tender.",
+              "Add 1 tsp garam masala, mix gently. Garnish with fresh coriander and serve with chapati."
+            ],
+            "servings": "2",
+            "tips": [
+              "Cook on medium heat to avoid burning spices",
+              "Use fresh vegetables for best flavor",
+              "Adjust chilli powder to your spice tolerance"
+            ]
+          }
+        ],
+        [
+          {
+            "benefits": "Contains antioxidants from spices like turmeric and cumin. Supports immunity and healthy metabolism.",
+            "cookTime": "20 min",
+            "cuisine": "Indian",
+            "dietType": "Vegetarian",
+            "difficulty": "Easy",
+            "id": "7566b8cd-789f-4b55-bfe4-72c08d3d4878",
+            "ingredients": [
+              "potatoes",
+              "carrot",
+              "mushroom",
+              "2 tbsp cooking oil",
+              "1 medium onion",
+              "1 tbsp ginger-garlic paste",
+              "8-10 curry leaves",
+              "2 green chillies",
+              "1 tsp mustard seeds",
+              "1 tsp cumin seeds",
+              "1/2 tsp turmeric powder",
+              "1 tsp red chilli powder",
+              "salt to taste",
+              "fresh coriander for garnish"
+            ],
+            "name": "Potatoes Curry",
+            "nutrition": "Rich in vitamins, minerals and fiber. Provides sustained energy and supports digestion.",
+            "pairing": "Serve with steamed rice or hot chapati",
+            "prepTime": "10 min",
+            "process": [
+              "Wash and cut the potatoes into medium sized pieces.",
+              "Heat 2 tablespoons oil in a deep kadai on medium flame.",
+              "Add 1 tsp mustard seeds, 1 tsp cumin seeds and let them splutter.",
+              "Add curry leaves, 2 dried red chillies and a pinch of hing (asafoetida).",
+              "Add 1 large finely chopped onion and saut\u00e9 for 5-7 minutes until golden brown.",
+              "Add 1 tbsp ginger-garlic paste and saut\u00e9 for 2 minutes until raw smell goes away.",
+              "Add the potatoes pieces, 1 tsp turmeric, 1 tsp red chilli powder, 1 tsp coriander powder and salt.",
+              "Mix well, add 1 cup water, cover and cook on low flame for 15-20 minutes.",
+              "Add 1/2 tsp garam masala, stir well and cook for 2 more minutes.",
+              "Turn off the stove. Garnish with fresh chopped coriander leaves. Serve hot with rice."
+            ],
+            "servings": "2",
+            "tips": [
+              "Cook on medium heat to avoid burning spices",
+              "Use fresh vegetables for best flavor",
+              "Adjust chilli powder to your spice tolerance"
+            ]
+          },
+          {
+            "benefits": "Contains antioxidants from spices like turmeric and cumin. Supports immunity and healthy metabolism.",
+            "cookTime": "20 min",
+            "cuisine": "Indian",
+            "dietType": "Vegetarian",
+            "difficulty": "Easy",
+            "id": "ba71af9a-b422-40d5-b4aa-d7d621b253e2",
+            "ingredients": [
+              "potatoes",
+              "carrot",
+              "mushroom",
+              "2 tbsp cooking oil",
+              "1 medium onion",
+              "1 tbsp ginger-garlic paste",
+              "8-10 curry leaves",
+              "2 green chillies",
+              "1 tsp mustard seeds",
+              "1 tsp cumin seeds",
+              "1/2 tsp turmeric powder",
+              "1 tsp red chilli powder",
+              "salt to taste",
+              "fresh coriander for garnish"
+            ],
+            "name": "Potatoes Fry",
+            "nutrition": "Rich in vitamins, minerals and fiber. Provides sustained energy and supports digestion.",
+            "pairing": "Serve with steamed rice or hot chapati",
+            "prepTime": "10 min",
+            "process": [
+              "Wash and chop the potatoes into thin slices or small pieces.",
+              "Heat 3 tablespoons oil in a flat tawa or iron pan on medium-high flame.",
+              "Add 1 tsp mustard seeds and wait for them to crackle.",
+              "Add 8-10 curry leaves and 2 slit green chillies, saut\u00e9 for 30 seconds.",
+              "Add 1 medium sliced onion and fry for 4-5 minutes until edges turn brown.",
+              "Add the potatoes slices, spread evenly in the pan.",
+              "Sprinkle 1/2 tsp turmeric, 1 tsp red chilli powder, and salt to taste.",
+              "Cook on medium flame for 10-12 minutes, flipping occasionally for even crispiness.",
+              "Increase flame to high for last 2 minutes to get crispy edges.",
+              "Switch off stove. Squeeze half a lemon and garnish with chopped coriander. Serve hot."
+            ],
+            "servings": "2",
+            "tips": [
+              "Cook on medium heat to avoid burning spices",
+              "Use fresh vegetables for best flavor",
+              "Adjust chilli powder to your spice tolerance"
+            ]
+          },
+          {
+            "benefits": "Contains antioxidants from spices like turmeric and cumin. Supports immunity and healthy metabolism.",
+            "cookTime": "20 min",
+            "cuisine": "Indian",
+            "dietType": "Vegetarian",
+            "difficulty": "Easy",
+            "id": "3be95d99-c53a-40f3-8872-74b15154dc49",
+            "ingredients": [
+              "potatoes",
+              "carrot",
+              "mushroom",
+              "2 tbsp cooking oil",
+              "1 medium onion",
+              "1 tbsp ginger-garlic paste",
+              "8-10 curry leaves",
+              "2 green chillies",
+              "1 tsp mustard seeds",
+              "1 tsp cumin seeds",
+              "1/2 tsp turmeric powder",
+              "1 tsp red chilli powder",
+              "salt to taste",
+              "fresh coriander for garnish"
+            ],
+            "name": "Potatoes Masala",
+            "nutrition": "Rich in vitamins, minerals and fiber. Provides sustained energy and supports digestion.",
+            "pairing": "Serve with steamed rice or hot chapati",
+            "prepTime": "10 min",
+            "process": [
+              "Clean and cut the potatoes into bite-sized cubes.",
+              "Heat 2 tbsp oil + 1 tbsp ghee in a heavy bottom pan on medium flame.",
+              "Add 1 tsp cumin seeds, 2 cloves, 1 small cinnamon stick and let them sizzle.",
+              "Add 2 medium finely chopped onions and cook for 8-10 minutes until deep golden.",
+              "Add 1 tbsp ginger-garlic paste, cook for 2 minutes until fragrant.",
+              "Add 2 chopped tomatoes and cook until they become soft and oil separates (5-7 min).",
+              "Add 1 tsp turmeric, 1.5 tsp red chilli powder, 1 tsp coriander powder, salt to taste.",
+              "Add the potatoes pieces and mix well with the masala. Cook for 3 minutes.",
+              "Add 1/2 cup water, cover with lid and cook on low flame for 15 minutes until tender.",
+              "Add 1 tsp garam masala, mix gently. Garnish with fresh coriander and serve with chapati."
+            ],
+            "servings": "2",
+            "tips": [
+              "Cook on medium heat to avoid burning spices",
+              "Use fresh vegetables for best flavor",
+              "Adjust chilli powder to your spice tolerance"
+            ]
+          }
+        ]
+      ]
+    }
+  }
+}
