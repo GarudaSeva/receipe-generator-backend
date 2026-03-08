@@ -129,14 +129,20 @@ Ingredients available: {", ".join(ingredients)}
 Cuisine: {cuisine}
 Diet: {diet}
 Allergies to avoid: {", ".join(allergies) if allergies else "None"}
-Dish style: {style_hint}
+Suggested style (use ONLY if it makes sense with the ingredients): {style_hint}
 
-TASK: Create one authentic, detailed {cuisine} {style_hint} recipe using the ingredients above.
+TASK: Create one authentic, detailed {cuisine} recipe using the ingredients above.
+
+CRITICAL — DISH NAME SELECTION:
+- First, think about what dish people MOST COMMONLY make with these exact ingredients in {cuisine} cuisine.
+- For example: chicken + noodles → "Chicken Noodles" or "Chicken Hakka Noodles" (Indian), "Chicken Chow Mein" (Chinese). egg + rice → "Egg Fried Rice". paneer + spinach → "Palak Paneer". chicken + rice → "Chicken Biryani" (Indian), "Chicken Fried Rice" (Chinese).
+- Choose the MOST NATURAL and POPULAR dish that uses these ingredients together. Do NOT invent hybrid names like "Chicken Curry Noodle Biryani" — that is not a real dish.
+- The suggested style "{style_hint}" is only a hint. If the ingredients naturally form a different dish (e.g., chicken + noodles = noodle dish, NOT a curry), IGNORE the style hint and use the correct dish type.
 
 MANDATORY RULES:
-1. The dish MUST be an authentic {cuisine} recipe. Use cooking techniques, spices, sauces and seasonings that are traditional to {cuisine} cuisine.
-2. Choose a REAL, well-known {cuisine} dish name — not a generic name. For example, if cuisine is Italian use names like "Spaghetti Carbonara" or "Penne Arrabbiata", if Chinese use "Kung Pao Chicken" or "Chow Mein", if Indian use "Butter Chicken" or "Palak Paneer", etc.
-3. Include all necessary ingredients with exact quantities, using pantry staples typical of {cuisine} cooking (NOT Indian spices unless cuisine is Indian).
+1. The dish MUST be an authentic {cuisine} recipe that people actually cook and eat. Use real dish names from {cuisine} cuisine.
+2. Use cooking techniques, spices, sauces and seasonings that are traditional to {cuisine} cuisine.
+3. Include all necessary ingredients with exact quantities, using pantry staples typical of {cuisine} cooking.
 4. Every process step MUST be specific with actions, timings and quantities. Include at least 10 detailed steps.
 5. Respect allergies strictly. Match the diet type: {diet}.
 6. Nutrition MUST list per-serving values for: Calories, Protein, Carbohydrates, Fat, Fiber, Sodium.
@@ -150,7 +156,7 @@ All array items MUST be plain strings — NOT objects or numbered keys.
 Exact JSON structure:
 
 {{
-  "name": "<real {cuisine} dish name>",
+  "name": "<real {cuisine} dish name that people actually search for>",
   "cuisine": "{cuisine}",
   "dietType": "{diet}",
   "ingredients": [
