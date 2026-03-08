@@ -77,14 +77,14 @@ def save_db(data):
 # ==========================
 
 def clean_ingredients(ingredients):
+    """Clean ingredient list — split on commas only, preserve multi-word items like 'chicken breast'."""
     if isinstance(ingredients, str):
-        ingredients = re.split(r"[,\s]+", ingredients)
+        ingredients = [i.strip() for i in ingredients.split(",") if i.strip()]
 
-    # Expand each item by splitting on commas/spaces too
-    # (handles cases like ["egg,rice,onion"] sent as a single list element)
+    # Expand each item by splitting on commas only (not spaces)
     expanded = []
     for i in ingredients:
-        parts = re.split(r"[,\s]+", str(i))
+        parts = [p.strip() for p in str(i).split(",")]
         expanded.extend(parts)
 
     cleaned = []
@@ -99,87 +99,79 @@ def clean_ingredients(ingredients):
 # PROMPT
 # ==========================
 
-DISH_STYLES = ["curry", "fry", "gravy", "masala", "biryani"]
+CUISINE_STYLES = {
+    "Indian": ["curry", "fry", "masala", "biryani", "tikka"],
+    "Chinese": ["stir fry", "noodle dish", "fried rice", "dumpling", "soup"],
+    "Italian": ["pasta", "risotto", "baked dish", "bruschetta", "salad"],
+    "Mexican": ["tacos", "burrito bowl", "enchilada", "quesadilla", "salsa bowl"],
+    "Thai": ["curry", "stir fry", "noodle soup", "salad", "fried rice"],
+    "French": ["sauté", "gratin", "ratatouille", "crêpe", "casserole"],
+    "Japanese": ["ramen", "donburi", "teriyaki", "stir fry", "tempura"],
+    "Greek": ["souvlaki", "baked dish", "salad", "stew", "wrap"],
+    "Spanish": ["paella", "tapas", "stew", "tortilla", "baked dish"],
+    "British": ["pie", "roast", "stew", "bake", "casserole"],
+    "Vietnamese": ["pho", "banh mi", "stir fry", "spring rolls", "noodle bowl"],
+    "Korean": ["bibimbap", "stir fry", "stew", "fried rice", "pancake"],
+    "Moroccan": ["tagine", "couscous dish", "stew", "salad", "soup"],
+    "Filipino": ["adobo", "sinigang", "stir fry", "stew", "fried rice"],
+}
+DEFAULT_STYLES = ["stir fry", "curry", "baked dish", "soup", "salad"]
 
 def build_prompt(ingredients, cuisine="Indian", diet="Balanced", allergies=None, variation=0):
 
     allergies = allergies or []
-    style_hint = DISH_STYLES[variation % len(DISH_STYLES)]
+    styles = CUISINE_STYLES.get(cuisine, DEFAULT_STYLES)
+    style_hint = styles[variation % len(styles)]
 
-    return f"""You are an expert Indian home chef and nutritionist.
+    return f"""You are a world-class professional chef and nutritionist with deep expertise in {cuisine} cuisine.
 
 Ingredients available: {", ".join(ingredients)}
 Cuisine: {cuisine}
 Diet: {diet}
 Allergies to avoid: {", ".join(allergies) if allergies else "None"}
-Style: {style_hint}
+Dish style: {style_hint}
 
-TASK: Create one authentic, detailed Indian {style_hint} recipe using the ingredients above.
+TASK: Create one authentic, detailed {cuisine} {style_hint} recipe using the ingredients above.
 
 MANDATORY RULES:
-1. Choose a REAL dish name (e.g. "Chicken Curry", "Egg Fried Rice", "Aloo Masala").
-2. Include ALL common Indian kitchen staples with exact quantities: cooking oil, onions, garlic, ginger, green chillies, curry leaves, mustard seeds, cumin seeds, turmeric powder, red chilli powder, coriander powder, garam masala, salt, fresh coriander.
-3. Every process step MUST be specific with actions, timings and quantities. Include at least 10 detailed steps.
-4. Respect allergies strictly. Match the diet type: {diet}.
-5. Nutrition MUST list per-serving values for: Calories, Protein, Carbohydrates, Fat, Fiber, Sodium.
-6. Benefits MUST be 4-5 detailed sentences explaining specific health benefits of the main ingredients and spices.
-7. Include at least 4 practical chef tips specific to this dish.
+1. The dish MUST be an authentic {cuisine} recipe. Use cooking techniques, spices, sauces and seasonings that are traditional to {cuisine} cuisine.
+2. Choose a REAL, well-known {cuisine} dish name — not a generic name. For example, if cuisine is Italian use names like "Spaghetti Carbonara" or "Penne Arrabbiata", if Chinese use "Kung Pao Chicken" or "Chow Mein", if Indian use "Butter Chicken" or "Palak Paneer", etc.
+3. Include all necessary ingredients with exact quantities, using pantry staples typical of {cuisine} cooking (NOT Indian spices unless cuisine is Indian).
+4. Every process step MUST be specific with actions, timings and quantities. Include at least 10 detailed steps.
+5. Respect allergies strictly. Match the diet type: {diet}.
+6. Nutrition MUST list per-serving values for: Calories, Protein, Carbohydrates, Fat, Fiber, Sodium.
+7. Benefits MUST be 4-5 detailed sentences explaining specific health benefits of the main ingredients.
+8. Include at least 4 practical chef tips specific to this dish.
+9. Pairing suggestions should match {cuisine} cuisine traditions.
 
 OUTPUT: Return ONLY a raw JSON object. No markdown, no backticks, no explanation before or after the JSON.
 All array items MUST be plain strings — NOT objects or numbered keys.
 
-Exact JSON structure to follow:
+Exact JSON structure:
 
 {{
-  "name": "Chicken Curry",
+  "name": "<real {cuisine} dish name>",
   "cuisine": "{cuisine}",
   "dietType": "{diet}",
   "ingredients": [
-    "500g chicken, cut into 2-inch pieces",
-    "2 medium onions, finely chopped",
-    "2 ripe tomatoes, pureed",
-    "2 tbsp cooking oil",
-    "1 tsp cumin seeds",
-    "1 tbsp ginger-garlic paste",
-    "8-10 curry leaves",
-    "2 green chillies, slit",
-    "1 tsp turmeric powder",
-    "1.5 tsp red chilli powder",
-    "1 tsp coriander powder",
-    "0.5 tsp garam masala",
-    "salt to taste",
-    "2 tbsp fresh coriander, chopped"
+    "<quantity> <ingredient 1>",
+    "<quantity> <ingredient 2>"
   ],
-  "prepTime": "15 minutes",
-  "cookTime": "35 minutes",
-  "servings": "3-4 people",
-  "difficulty": "Medium",
+  "prepTime": "<X minutes>",
+  "cookTime": "<X minutes>",
+  "servings": "<N people>",
+  "difficulty": "<Easy|Medium|Hard>",
   "process": [
-    "Wash the chicken pieces thoroughly under cold water, pat completely dry with paper towels and set aside.",
-    "Heat 2 tbsp oil in a heavy-bottomed kadai over medium-high heat until shimmering hot.",
-    "Add 1 tsp cumin seeds and wait 20-30 seconds until they splutter and turn golden brown.",
-    "Add curry leaves and slit green chillies, fry for 15 seconds until fragrant.",
-    "Add finely chopped onions and cook on medium heat for 8-10 minutes, stirring often, until deep golden brown.",
-    "Add 1 tbsp ginger-garlic paste and cook for 2 minutes, stirring constantly, until the raw smell disappears.",
-    "Add pureed tomatoes and cook for 5-6 minutes until the oil starts to separate from the masala.",
-    "Lower the heat and add turmeric, red chilli powder and coriander powder. Stir for 30 seconds.",
-    "Add the chicken pieces, increase heat to medium-high and sear for 4-5 minutes, turning to brown all sides.",
-    "Add 3/4 cup warm water and salt to taste. Stir well to coat chicken evenly with the masala.",
-    "Cover with a tight lid, reduce heat to low and cook for 20 minutes. Stir once halfway through.",
-    "Uncover, increase heat to medium and cook for 3-4 more minutes to reduce gravy to desired consistency.",
-    "Sprinkle garam masala, stir gently and cook for 1 final minute. Turn off the heat.",
-    "Garnish generously with freshly chopped coriander leaves. Serve hot with steamed rice or chapati."
+    "<detailed step 1 with timing and quantities>",
+    "<detailed step 2>"
   ],
-  "nutrition": "Calories: ~420 kcal\\nProtein: 32g\\nCarbohydrates: 18g\\nFat: 22g\\nFiber: 3g\\nSodium: 580mg",
-  "benefits": "Chicken is an excellent source of lean protein that supports muscle repair, growth and immune function. Turmeric contains curcumin, a powerful anti-inflammatory compound that supports joint health, brain function and immunity. Ginger and garlic have proven antibacterial and antioxidant properties that aid digestion and support cardiovascular health. Cumin seeds stimulate digestive enzymes and help reduce bloating and acidity after meals. The combination of these spices provides essential micronutrients including iron, magnesium, zinc and B-vitamins that support energy metabolism.",
+  "nutrition": "Calories: ~XXX kcal\\nProtein: XXg\\nCarbohydrates: XXg\\nFat: XXg\\nFiber: Xg\\nSodium: XXXmg",
+  "benefits": "<4-5 sentences about health benefits of key ingredients>",
   "tips": [
-    "Pat chicken completely dry before cooking — any surface moisture prevents proper searing and results in a watery curry.",
-    "Fry the onions with patience on medium heat — deeply caramelized golden-brown onions are the biggest secret to a rich, full-bodied curry.",
-    "Always add dry spice powders on low heat and stir immediately for 30 seconds — high heat burns the spices and turns the dish bitter.",
-    "For a richer, creamier gravy, stir in 2 tbsp fresh cream or thick coconut milk in the final 2 minutes of cooking.",
-    "Rest the curry for 5-10 minutes off the heat before serving — the flavors continue to develop and deepen as it sits."
+    "<practical tip 1>",
+    "<practical tip 2>"
   ],
-  "pairing": "Serve with steamed basmati rice or butter naan for a complete meal. A side of sliced onions drizzled with lemon juice, fresh cucumber raita and a wedge of lemon complement the spices beautifully. Finish the meal with a tall glass of chilled salted lassi to balance the heat."
+  "pairing": "<2-3 sentences about what to serve with this dish, matching {cuisine} traditions>"
 }}"""
 
 
@@ -358,108 +350,69 @@ def generate_recipe(ingredients, cuisine="Indian", diet="Balanced", allergies=No
 # FALLBACK RECIPE
 # ==========================
 
-FALLBACK_DISHES = [
-    {
-        "suffix": "Curry",
-        "process": [
-            "Wash and cut the {main} into medium sized pieces.",
-            "Heat 2 tablespoons oil in a deep kadai on medium flame.",
-            "Add 1 tsp mustard seeds, 1 tsp cumin seeds and let them splutter.",
-            "Add curry leaves, 2 dried red chillies and a pinch of hing (asafoetida).",
-            "Add 1 large finely chopped onion and sauté for 5-7 minutes until golden brown.",
-            "Add 1 tbsp ginger-garlic paste and sauté for 2 minutes until raw smell goes away.",
-            "Add the {main} pieces, 1 tsp turmeric, 1 tsp red chilli powder, 1 tsp coriander powder and salt.",
-            "Mix well, add 1 cup water, cover and cook on low flame for 15-20 minutes.",
-            "Add 1/2 tsp garam masala, stir well and cook for 2 more minutes.",
-            "Turn off the stove. Garnish with fresh chopped coriander leaves. Serve hot with rice."
-        ]
+CUISINE_FALLBACK = {
+    "Indian": {
+        "styles": ["Curry", "Fry", "Masala"],
+        "staples": ["2 tbsp cooking oil", "1 medium onion, finely chopped", "1 tbsp ginger-garlic paste",
+                     "1 tsp cumin seeds", "1 tsp turmeric powder", "1 tsp red chilli powder",
+                     "1 tsp coriander powder", "1/2 tsp garam masala", "salt to taste", "fresh coriander for garnish"],
+        "pairing": "steamed basmati rice or freshly made chapati with cucumber raita on the side",
     },
-    {
-        "suffix": "Fry",
-        "process": [
-            "Wash and chop the {main} into thin slices or small pieces.",
-            "Heat 3 tablespoons oil in a flat tawa or iron pan on medium-high flame.",
-            "Add 1 tsp mustard seeds and wait for them to crackle.",
-            "Add 8-10 curry leaves and 2 slit green chillies, sauté for 30 seconds.",
-            "Add 1 medium sliced onion and fry for 4-5 minutes until edges turn brown.",
-            "Add the {main} slices, spread evenly in the pan.",
-            "Sprinkle 1/2 tsp turmeric, 1 tsp red chilli powder, and salt to taste.",
-            "Cook on medium flame for 10-12 minutes, flipping occasionally for even crispiness.",
-            "Increase flame to high for last 2 minutes to get crispy edges.",
-            "Switch off stove. Squeeze half a lemon and garnish with chopped coriander. Serve hot."
-        ]
+    "Chinese": {
+        "styles": ["Stir Fry", "Fried Rice", "Noodles"],
+        "staples": ["2 tbsp sesame oil", "3 cloves garlic, minced", "1 inch ginger, julienned",
+                     "2 tbsp soy sauce", "1 tbsp oyster sauce", "1 tsp cornstarch",
+                     "1 spring onion, sliced", "pinch white pepper", "salt to taste"],
+        "pairing": "steamed jasmine rice or hot wonton soup on the side",
     },
-    {
-        "suffix": "Masala",
-        "process": [
-            "Clean and cut the {main} into bite-sized cubes.",
-            "Heat 2 tbsp oil + 1 tbsp ghee in a heavy bottom pan on medium flame.",
-            "Add 1 tsp cumin seeds, 2 cloves, 1 small cinnamon stick and let them sizzle.",
-            "Add 2 medium finely chopped onions and cook for 8-10 minutes until deep golden.",
-            "Add 1 tbsp ginger-garlic paste, cook for 2 minutes until fragrant.",
-            "Add 2 chopped tomatoes and cook until they become soft and oil separates (5-7 min).",
-            "Add 1 tsp turmeric, 1.5 tsp red chilli powder, 1 tsp coriander powder, salt to taste.",
-            "Add the {main} pieces and mix well with the masala. Cook for 3 minutes.",
-            "Add 1/2 cup water, cover with lid and cook on low flame for 15 minutes until tender.",
-            "Add 1 tsp garam masala, mix gently. Garnish with fresh coriander and serve with chapati."
-        ]
+    "Italian": {
+        "styles": ["Pasta", "Baked Dish", "Risotto"],
+        "staples": ["2 tbsp extra virgin olive oil", "3 cloves garlic, minced", "1 medium onion, diced",
+                     "1 can crushed tomatoes", "1 tsp dried oregano", "1 tsp dried basil",
+                     "1/4 cup parmesan cheese", "salt and black pepper to taste", "fresh basil for garnish"],
+        "pairing": "garlic bread and a fresh green salad with balsamic vinaigrette",
     },
-    {
-        "suffix": "Gravy",
-        "process": [
-            "Wash and prepare the {main} by cutting into medium chunks.",
-            "Soak 10 cashews in warm water for 10 minutes, then grind into smooth paste.",
-            "Heat 2 tbsp oil in a deep pan on medium flame.",
-            "Add 1 bay leaf, 2 green cardamom, 3 cloves and sauté for 30 seconds.",
-            "Add 1 large finely chopped onion and cook for 6-8 minutes until soft and brown.",
-            "Add 1 tbsp ginger-garlic paste and fry for 2 minutes.",
-            "Add 2 pureed tomatoes, 1 tsp turmeric, 1 tsp chilli powder. Cook for 5 minutes.",
-            "Add the {main} and cashew paste. Mix well. Add 1 cup water.",
-            "Cover and simmer on low flame for 20 minutes until {main} is fully cooked.",
-            "Finish with 1 tsp garam masala and cream (optional). Garnish with coriander. Serve with naan."
-        ]
+    "Mexican": {
+        "styles": ["Tacos", "Burrito Bowl", "Quesadilla"],
+        "staples": ["2 tbsp vegetable oil", "1 medium onion, diced", "3 cloves garlic, minced",
+                     "1 tsp cumin powder", "1 tsp chili powder", "1/2 tsp smoked paprika",
+                     "juice of 1 lime", "salt to taste", "fresh cilantro for garnish"],
+        "pairing": "tortilla chips with guacamole and a refreshing agua fresca",
     },
-    {
-        "suffix": "Stir Fry",
-        "process": [
-            "Wash, peel and julienne-cut the {main} into thin strips.",
-            "Heat 2 tbsp oil in a wok or large kadai on high flame.",
-            "Add 1 tsp mustard seeds and 1/2 tsp cumin seeds, let them pop.",
-            "Add 1 sprig curry leaves, 2 slit green chillies and 1 dried red chilli.",
-            "Add 1 medium thinly sliced onion and toss on high heat for 2-3 minutes.",
-            "Add the {main} strips immediately. Toss continuously on high flame.",
-            "Add 1/4 tsp turmeric, 1/2 tsp red chilli powder and salt. Keep tossing.",
-            "Add 1 tbsp freshly grated coconut and mix well.",
-            "Cook for 5-7 minutes total on high heat until slightly charred but crunchy.",
-            "Switch off flame. Squeeze lemon juice and garnish with coriander. Serve as a side dish."
-        ]
-    }
-]
+    "Thai": {
+        "styles": ["Curry", "Stir Fry", "Noodle Soup"],
+        "staples": ["2 tbsp vegetable oil", "2 tbsp Thai curry paste", "1 can coconut milk",
+                     "2 tbsp fish sauce", "1 tbsp palm sugar", "Thai basil leaves",
+                     "2 kaffir lime leaves", "1 stalk lemongrass", "salt to taste"],
+        "pairing": "steamed jasmine rice and a side of fresh Thai papaya salad",
+    },
+    "Japanese": {
+        "styles": ["Teriyaki", "Donburi", "Stir Fry"],
+        "staples": ["2 tbsp vegetable oil", "3 tbsp soy sauce", "2 tbsp mirin",
+                     "1 tbsp sake", "1 tsp sugar", "1 tsp sesame seeds",
+                     "1 spring onion, sliced", "1 tsp grated ginger", "salt to taste"],
+        "pairing": "steamed short-grain rice, miso soup, and pickled ginger on the side",
+    },
+}
+DEFAULT_FALLBACK = {
+    "styles": ["Stir Fry", "Baked Dish", "Stew"],
+    "staples": ["2 tbsp cooking oil", "1 medium onion, diced", "3 cloves garlic, minced",
+                 "salt and pepper to taste", "fresh herbs for garnish"],
+    "pairing": "a fresh side salad and crusty bread",
+}
 
 def generate_fallback_recipe(ingredients, cuisine="Indian", diet="Balanced", variation=0):
 
     main = ingredients[0] if ingredients else "vegetables"
-    dish = FALLBACK_DISHES[variation % len(FALLBACK_DISHES)]
-    process = [step.format(main=main) for step in dish["process"]]
+    fb = CUISINE_FALLBACK.get(cuisine, DEFAULT_FALLBACK)
+    styles = fb["styles"]
+    style = styles[variation % len(styles)]
+    staples = fb["staples"]
+    pairing_hint = fb["pairing"]
 
-    # Build a proper ingredients list with kitchen staples
-    full_ingredients = list(ingredients) + [
-        "2 tbsp cooking oil",
-        "1 medium onion, finely chopped",
-        "1 tbsp ginger-garlic paste",
-        "8-10 curry leaves",
-        "2 green chillies, slit",
-        "1 tsp mustard seeds",
-        "1 tsp cumin seeds",
-        "1/2 tsp turmeric powder",
-        "1 tsp red chilli powder",
-        "1 tsp coriander powder",
-        "1/2 tsp garam masala",
-        "salt to taste",
-        "2 tbsp fresh coriander, chopped for garnish"
-    ]
+    full_ingredients = list(ingredients) + staples
 
-    # Detect diet type — prefer user's selection; otherwise scan ALL ingredients
+    # Detect diet type
     all_ingredients_lower = " ".join(ingredients).lower()
     meat_keywords = ["chicken", "mutton", "fish", "prawn", "shrimp", "beef", "pork", "lamb"]
     egg_keywords = ["egg", "eggs"]
@@ -467,33 +420,28 @@ def generate_fallback_recipe(ingredients, cuisine="Indian", diet="Balanced", var
     has_egg = any(k in all_ingredients_lower for k in egg_keywords)
 
     if diet and diet not in ("", "Balanced"):
-        diet_type = diet  # Use the user's explicit selection
+        diet_type = diet
     elif has_meat or has_egg:
         diet_type = "Non Vegetarian"
     else:
         diet_type = "Vegetarian"
 
-    style = dish["suffix"]
+    # Build dish name
+    key_ingredients = [i.title() for i in ingredients[:2]]
+    dish_name = f"{' '.join(key_ingredients)} {style}"
 
-    # Build a better dish name using the key ingredient + style
-    # If the main ingredient isn't a protein, try to find one in the list
-    protein_ingredient = main
-    if has_meat:
-        for ing in ingredients:
-            if any(k in ing.lower() for k in meat_keywords):
-                protein_ingredient = ing
-                break
-    elif has_egg:
-        for ing in ingredients:
-            if any(k in ing.lower() for k in egg_keywords):
-                protein_ingredient = ing
-                break
-
-    # Name: e.g. "Chicken Noodles Curry" or "Noodles Curry"
-    if protein_ingredient != main:
-        dish_name = f"{protein_ingredient.title()} {main.title()} {style}"
-    else:
-        dish_name = f"{main.title()} {style}"
+    process = [
+        f"Prepare the {main} by washing and cutting into appropriate sized pieces.",
+        f"Prepare all other ingredients — dice onions, mince garlic, measure out sauces and spices.",
+        f"Heat oil in a suitable pan over medium-high heat.",
+        f"Add aromatics (onion, garlic) and cook for 2-3 minutes until fragrant.",
+        f"Add the {main} and cook for 5-7 minutes, stirring occasionally.",
+        f"Add seasonings and sauces. Mix well to coat evenly.",
+        f"Cook for another 8-10 minutes until {main} is fully cooked through.",
+        f"Taste and adjust seasoning with salt and pepper.",
+        f"Garnish with fresh herbs and serve immediately.",
+        f"Enjoy with {pairing_hint}."
+    ]
 
     return {
         "id": str(uuid.uuid4()),
@@ -506,23 +454,23 @@ def generate_fallback_recipe(ingredients, cuisine="Indian", diet="Balanced", var
         "servings": "2-3 people",
         "difficulty": "Easy",
         "process": process,
-        "nutrition": "Calories: ~280 kcal\nProtein: 8g\nCarbohydrates: 32g\nFat: 12g\nFiber: 5g\nSodium: 490mg",
+        "nutrition": "Calories: ~300 kcal\nProtein: 12g\nCarbohydrates: 28g\nFat: 14g\nFiber: 4g\nSodium: 500mg",
         "benefits": (
-            "Turmeric contains curcumin, a powerful anti-inflammatory compound that supports joint health and immunity. "
-            "Mustard seeds and curry leaves are rich in antioxidants that protect cells from oxidative stress. "
-            "Ginger aids digestion, reduces nausea and has proven anti-bacterial properties that support gut health. "
-            "Cumin seeds stimulate digestive enzymes, helping reduce bloating and improving nutrient absorption. "
-            "The combination of these spices provides iron, magnesium and essential B-vitamins that support energy metabolism and immune function."
+            f"The main ingredients provide essential nutrients including protein, vitamins and minerals. "
+            f"Garlic and onions are rich in antioxidants that support immune function and cardiovascular health. "
+            f"Cooking with quality oil provides healthy fats important for nutrient absorption. "
+            f"Fresh herbs add flavor without extra sodium and contain beneficial plant compounds. "
+            f"A balanced combination of ingredients supports energy metabolism and overall wellness."
         ),
         "tips": [
-            "Always heat the oil well before adding mustard seeds — cold oil prevents the seeds from spluttering properly.",
-            "Add powdered spices on low heat and stir immediately for 30 seconds — high heat burns them and makes the dish bitter.",
-            "Use fresh curry leaves for maximum fragrance — dried ones lose most of their aroma and flavor.",
-            "Taste and adjust salt only at the end of cooking, as the flavors concentrate as the dish reduces.",
-            f"For best texture, do not cut {main} pieces too small — medium-sized pieces hold their shape and absorb the masala well."
+            "Always heat the pan properly before adding ingredients for the best sear and flavor.",
+            "Taste and adjust seasoning at the end — flavors concentrate during cooking.",
+            f"Cut the {main} into uniform pieces for even cooking.",
+            "Let the dish rest for a few minutes before serving to allow flavors to meld.",
+            "Use fresh ingredients whenever possible for the best flavor and nutrition."
         ],
-        "pairing": f"{dish_name} pairs beautifully with steamed basmati rice or freshly made chapati. Serve alongside a simple cucumber and onion salad dressed with lemon juice and a pinch of chaat masala. A small bowl of plain yogurt or raita on the side helps balance the spice levels.",
-        "calories": 280
+        "pairing": f"{dish_name} pairs well with {pairing_hint}.",
+        "calories": 300
     }
 
 
