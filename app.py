@@ -553,9 +553,9 @@ def get_personalized_recommendations(email):
 
     target_cuisine = cuisines[0] if cuisines else "Indian"
 
-    # Generate 3 personalised recipes
+    # Generate 1 personalised recipe
     new_recipes = []
-    for i in range(3):
+    for i in range(1):
         recipe = generate_recipe(
             ingredients=ingredients,
             cuisine=target_cuisine,
