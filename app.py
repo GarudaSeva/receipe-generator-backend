@@ -259,7 +259,8 @@ def generate_recipe(ingredients, cuisine="Indian", diet="Balanced", allergies=No
         try:
             if attempt > 0:
                 wait = attempt * 2
-                print(f"[LLM] Retry attempt {attempt+1}/{max_attempts} with next API key, waiting {wait}s...")
+                # Corrected log message — it usually retries with the same key unless configured otherwise
+                print(f"[LLM] Retry attempt {attempt+1}/{max_attempts}, waiting {wait}s...")
                 time.sleep(wait)
 
             print(f"[LLM] Attempt {attempt+1}/{max_attempts} — calling Groq...")
@@ -538,14 +539,40 @@ def get_personalized_recommendations(email):
 
     # Fetch all past generated recipes from search history
     search_history = user.get("searchHistory", [])
-    past_ingredients = []
+    past_candidates = []
     for batch in search_history:
         if isinstance(batch, list):
-            past_ingredients.extend(batch)
+            for item in batch:
+                if isinstance(item, str):
+                    past_candidates.append(item)
+                elif isinstance(item, dict):
+                    # If batch contains recipes, extract core ingredients from them
+                    recipe_ingredients = item.get("ingredients", [])
+                    if isinstance(recipe_ingredients, list):
+                        # Extract first 3 items which are usually the main ingredients
+                        for ri in recipe_ingredients[:3]:
+                            if isinstance(ri, str):
+                                # Strip quantities if possible (simple heuristic)
+                                cleaned_ri = re.sub(r"^\d+\s*\w*\s*", "", ri).strip()
+                                if cleaned_ri:
+                                    past_candidates.append(cleaned_ri)
+                    # Also consider the recipe name if it's short
+                    name = item.get("name", "")
+                    if name and len(name.split()) <= 3:
+                        past_candidates.append(name)
 
     # Build ingredients query: prefer past search ingredients, fall back to profile
-    if past_ingredients:
-        ingredients = clean_ingredients(list(dict.fromkeys(past_ingredients)))  # deduplicated
+    if past_candidates:
+        # Deduplicate while preserving order, handle unhashable types by filtering
+        unique_ingredients = []
+        seen = set()
+        for i in past_candidates:
+            if isinstance(i, str):
+                val = i.lower()
+                if val not in seen:
+                    unique_ingredients.append(i)
+                    seen.add(val)
+        ingredients = clean_ingredients(unique_ingredients)
     elif fav_ingredients:
         ingredients = clean_ingredients(fav_ingredients)
     else:
@@ -702,7 +729,7 @@ def delete_favorite(email, recipe_id):
     if not user:
         return jsonify({"error": "User not found"}), 404
 
-    user["favorites"] = [f for f in user["favorites"] if str(f.get("recipe", {}).get("id")) != str(recipe_id)]
+    user["favorites"] = [f for f in user["favorites"] if str(f.get("id")) != str(recipe_id)]
     save_db(db)
     return jsonify(user["favorites"])
 
